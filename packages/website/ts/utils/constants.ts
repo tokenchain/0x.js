@@ -34,6 +34,7 @@ export const constants = {
     GITHUB_URL: 'https://github.com/0xProject',
     GITHUB_WIKI_URL: 'https://github.com/0xProject/wiki',
     HTTP_NO_CONTENT_STATUS_CODE: 204,
+    DISMISS_WETH_NOTICE_LOCAL_STORAGE_KEY: 'hasDismissedWethNotice',
     ACCEPT_DISCLAIMER_LOCAL_STORAGE_KEY: 'didAcceptPortalDisclaimer',
     LINKEDIN_0X_URL: 'https://www.linkedin.com/company/0x',
     LEDGER_PROVIDER_NAME: 'Ledger',
@@ -83,6 +84,7 @@ export const constants = {
     WEB3_DECODED_LOG_ENTRY_EVENT_URL:
         'https://github.com/0xProject/web3-typescript-typings/blob/f5bcb96/index.d.ts#L123',
     WEB3_LOG_ENTRY_EVENT_URL: 'https://github.com/0xProject/web3-typescript-typings/blob/f5bcb96/index.d.ts#L127',
+    WETH_IO_URL: 'https://weth.io/',
     ZEROEX_CHAT_URL: 'https://chat.0xproject.com',
     // Projects
     ETHFINEX_URL: 'https://www.bitfinex.com/ethfinex',

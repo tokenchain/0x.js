@@ -13,10 +13,12 @@ import {
 } from 'material-ui/Table';
 import * as moment from 'moment';
 import * as React from 'react';
+import ReactTooltip = require('react-tooltip');
 import {Blockchain} from 'ts/blockchain';
 import {EthWethConversionButton} from 'ts/components/eth_weth_conversion_button';
 import {Dispatcher} from 'ts/redux/dispatcher';
 import {
+    EtherscanLinkSuffixes,
     OutdatedWrappedEtherByNetworkId,
     Side,
     Token,
@@ -26,6 +28,7 @@ import {
 } from 'ts/types';
 import {configs} from 'ts/utils/configs';
 import {constants} from 'ts/utils/constants';
+import {utils} from 'ts/utils/utils';
 
 const PRECISION = 5;
 const DATE_FORMAT = 'D/M/YY';
@@ -85,6 +88,10 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
         const etherTokenState = this.props.tokenStateByAddress[etherToken.address];
         const wethBalance = ZeroEx.toUnitAmount(etherTokenState.balance, 18);
         const isBidirectional = true;
+        const etherscanUrl = utils.getEtherScanLinkIfExists(
+            etherToken.address, this.props.networkId, EtherscanLinkSuffixes.address,
+        );
+        const tokenLabel = this.renderToken('Wrapped Ether', etherToken.address, constants.iconUrlBySymbol.WETH);
         return (
             <div className="clearfix lg-px4 md-px4 sm-px2" style={{minHeight: 600}}>
                 <div className="relative">
@@ -92,7 +99,7 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
                     <div className="absolute" style={{top: 0, right: 0}}>
                         <a
                             target="_blank"
-                            href="https://weth.io/"
+                            href={constants.WETH_IO_URL}
                             style={{color: LIGHT_GRAY}}
                         >
                             <div className="flex">
@@ -131,8 +138,11 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
                                                 style={{width: ICON_DIMENSION, height: ICON_DIMENSION}}
                                                 src={ETHER_ICON_PATH}
                                             />
-                                            <div className="mt2 ml2 sm-hide xs-hide">
-                                                Ether
+                                            <div
+                                                className="ml2 sm-hide xs-hide"
+                                                style={{marginTop: 12}}
+                                            >
+                                                ETH
                                             </div>
                                         </div>
                                     </TableRowColumn>
@@ -153,15 +163,7 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
                                 </TableRow>
                                 <TableRow key="WETH">
                                     <TableRowColumn className="py1">
-                                        <div className="flex">
-                                            <img
-                                                style={{width: ICON_DIMENSION, height: ICON_DIMENSION}}
-                                                src={constants.iconUrlBySymbol.WETH}
-                                            />
-                                            <div className="mt2 ml2 sm-hide xs-hide">
-                                                Wrapped Ether
-                                            </div>
-                                        </div>
+                                        {this.renderTokenLink(tokenLabel, etherscanUrl)}
                                     </TableRowColumn>
                                     <TableRowColumn>
                                         {wethBalance.toFixed(PRECISION)} WETH
@@ -244,8 +246,11 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
     private renderOutdatedWeths(etherToken: Token, etherTokenState: TokenState) {
         const rows = _.map(configs.outdatedWrappedEthers,
                         (outdatedWETHByNetworkId: OutdatedWrappedEtherByNetworkId) => {
-            const outdatedWETH = outdatedWETHByNetworkId[this.props.networkId];
-            const timestampMsRange = outdatedWETH.timestampMsRange;
+            const outdatedWETHIfExists = outdatedWETHByNetworkId[this.props.networkId];
+            if (_.isUndefined(outdatedWETHIfExists)) {
+                return null; // noop
+            }
+            const timestampMsRange = outdatedWETHIfExists.timestampMsRange;
             let dateRange: string;
             if (!_.isUndefined(timestampMsRange)) {
                 const startMoment = moment(timestampMsRange.startTimestampMs);
@@ -256,26 +261,24 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
             }
             const outdatedEtherToken = {
                 ...etherToken,
-                address: outdatedWETH.address,
+                address: outdatedWETHIfExists.address,
             };
-            const isStateLoaded = this.state.outdatedWETHAddressToIsStateLoaded[outdatedWETH.address];
-            const outdatedEtherTokenState = this.state.outdatedWETHStateByAddress[outdatedWETH.address];
+            const isStateLoaded = this.state.outdatedWETHAddressToIsStateLoaded[outdatedWETHIfExists.address];
+            const outdatedEtherTokenState = this.state.outdatedWETHStateByAddress[outdatedWETHIfExists.address];
             const balanceInEthIfExists = isStateLoaded ?
                                          ZeroEx.toUnitAmount(outdatedEtherTokenState.balance, 18).toFixed(PRECISION) :
                                          undefined;
-            const onConversionSuccessful = this.onOutdatedConversionSuccessfulAsync.bind(this, outdatedWETH.address);
+            const onConversionSuccessful = this.onOutdatedConversionSuccessfulAsync.bind(
+                this, outdatedWETHIfExists.address,
+            );
+            const etherscanUrl = utils.getEtherScanLinkIfExists(
+                outdatedWETHIfExists.address, this.props.networkId, EtherscanLinkSuffixes.address,
+            );
+            const tokenLabel = this.renderToken(dateRange, outdatedEtherToken.address, OUTDATED_WETH_ICON_PATH);
             return (
-                <TableRow key={`weth-${outdatedWETH.address}`}>
+                <TableRow key={`weth-${outdatedWETHIfExists.address}`}>
                     <TableRowColumn className="py1">
-                        <div className="flex">
-                            <img
-                                style={{width: ICON_DIMENSION, height: ICON_DIMENSION}}
-                                src={OUTDATED_WETH_ICON_PATH}
-                            />
-                            <div className="mt2 ml2 sm-hide xs-hide">
-                                {dateRange}
-                            </div>
-                        </div>
+                        {this.renderTokenLink(tokenLabel, etherscanUrl)}
                     </TableRowColumn>
                     <TableRowColumn>
                         {isStateLoaded ?
@@ -300,6 +303,41 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
             );
         });
         return rows;
+    }
+    private renderTokenLink(tokenLabel: React.ReactNode, etherscanUrl: string) {
+        return (
+            <span>
+                {_.isUndefined(etherscanUrl) ?
+                    tokenLabel :
+                    <a href={etherscanUrl} target="_blank" style={{textDecoration: 'none'}}>
+                        {tokenLabel}
+                    </a>
+                }
+            </span>
+        );
+    }
+    private renderToken(name: string, address: string, imgPath: string) {
+        const tooltipId = `tooltip-${address}`;
+        return (
+            <div className="flex">
+                <img
+                    style={{width: ICON_DIMENSION, height: ICON_DIMENSION}}
+                    src={imgPath}
+                />
+                <div
+                    className="ml2 sm-hide xs-hide"
+                    style={{marginTop: 12}}
+                >
+                    <span
+                        data-tip={true}
+                        data-for={tooltipId}
+                    >
+                        {name}
+                    </span>
+                    <ReactTooltip id={tooltipId}>{address}</ReactTooltip>
+                </div>
+            </div>
+        );
     }
     private async onOutdatedConversionSuccessfulAsync(outdatedWETHAddress: string) {
         this.setState({
@@ -345,9 +383,14 @@ export class EthWrappers extends React.Component<EthWrappersProps, EthWrappersSt
         });
     }
     private getOutdatedWETHAddresses(): string[] {
-        const outdatedWETHAddresses = _.map(configs.outdatedWrappedEthers, outdatedWrappedEther => {
-            return outdatedWrappedEther[this.props.networkId].address;
-        });
+        const outdatedWETHAddresses = _.compact(_.map(configs.outdatedWrappedEthers, outdatedWrappedEtherByNetwork => {
+            const outdatedWrappedEtherIfExists = outdatedWrappedEtherByNetwork[this.props.networkId];
+            if (_.isUndefined(outdatedWrappedEtherIfExists)) {
+                return undefined;
+            }
+            const address = outdatedWrappedEtherIfExists.address;
+            return address;
+        }));
         return outdatedWETHAddresses;
     }
 } // tslint:disable:max-file-line-count
