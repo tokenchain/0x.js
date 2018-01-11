@@ -1,3 +1,4 @@
+import { HttpClient } from '@0xproject/connect';
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
@@ -22,6 +23,15 @@ describe('ZeroEx library', () => {
         networkId: constants.TESTRPC_NETWORK_ID,
     };
     const zeroEx = new ZeroEx(web3.currentProvider, config);
+    it.only('test', async () => {
+        const client = new HttpClient('https://api.radarrelay.com/0x');
+        const orders = await client.getOrdersAsync();
+        for (const order of orders) {
+            const computedHash = ZeroEx.getOrderHashHex(order);
+            const providedHash = (order as any).orderHash;
+            console.log(`computedHash: ${computedHash} providedHash: ${providedHash}`);
+        }
+    });
     describe('#setProvider', () => {
         it('overrides provider in nested web3s and invalidates contractInstances', async () => {
             // Instantiate the contract instances with the current provider
