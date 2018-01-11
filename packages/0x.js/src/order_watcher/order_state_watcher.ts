@@ -115,6 +115,9 @@ export class OrderStateWatcher {
         assert.doesConformToSchema('signedOrder', signedOrder, schemas.signedOrderSchema);
         const orderHash = ZeroEx.getOrderHashHex(signedOrder);
         assert.isValidSignature(orderHash, signedOrder.ecSignature, signedOrder.maker);
+        if (!_.isUndefined(this._orderByOrderHash[orderHash])) {
+            return; // noop
+        }
         this._orderByOrderHash[orderHash] = signedOrder;
         this._addToDependentOrderHashes(signedOrder, orderHash);
         const expirationUnixTimestampMs = signedOrder.expirationUnixTimestampSec.times(1000);
