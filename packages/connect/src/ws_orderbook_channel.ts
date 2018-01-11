@@ -53,7 +53,7 @@ export class WebSocketOrderbookChannel implements OrderbookChannel {
         const subscribeMessage = {
             type: 'subscribe',
             channel: 'orderbook',
-            requestId: this._subscriptionCounter,
+            channelId: this._subscriptionCounter,
             payload: subscriptionOpts,
         };
         this._getConnection((error, connection) => {
@@ -69,6 +69,7 @@ export class WebSocketOrderbookChannel implements OrderbookChannel {
                 connection.on(WebsocketConnectionEventType.Message, message => {
                     this._handleWebSocketMessage(subscribeMessage.requestId, subscriptionOpts, message, handler);
                 });
+                console.log(subscribeMessage);
                 connection.sendUTF(JSON.stringify(subscribeMessage));
             }
         });

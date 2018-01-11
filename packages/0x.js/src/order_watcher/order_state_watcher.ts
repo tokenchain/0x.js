@@ -112,6 +112,7 @@ export class OrderStateWatcher {
      * @param   signedOrder     The order you wish to start watching.
      */
     public addOrder(signedOrder: SignedOrder): void {
+        console.log(`new order: `, signedOrder);
         assert.doesConformToSchema('signedOrder', signedOrder, schemas.signedOrderSchema);
         const orderHash = ZeroEx.getOrderHashHex(signedOrder);
         assert.isValidSignature(orderHash, signedOrder.ecSignature, signedOrder.maker);

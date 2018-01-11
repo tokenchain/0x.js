@@ -1,3 +1,4 @@
+import { HttpClient } from '@0xproject/connect';
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
@@ -5,7 +6,15 @@ import * as _ from 'lodash';
 import 'mocha';
 import * as Sinon from 'sinon';
 
-import { ApprovalContractEventArgs, LogWithDecodedArgs, Order, TokenEvents, ZeroEx } from '../src';
+import {
+    ApprovalContractEventArgs,
+    LogWithDecodedArgs,
+    Order,
+    OrderState,
+    SignedOrder,
+    TokenEvents,
+    ZeroEx,
+} from '../src';
 
 import { chaiSetup } from './utils/chai_setup';
 import { constants } from './utils/constants';
@@ -19,9 +28,23 @@ const expect = chai.expect;
 describe('ZeroEx library', () => {
     const web3 = web3Factory.create();
     const config = {
-        networkId: constants.TESTRPC_NETWORK_ID,
+        networkId: 1,
     };
     const zeroEx = new ZeroEx(web3.currentProvider, config);
+    it
+        .only('test', (done: any) => {
+            (async () => {
+                const client = new HttpClient('https://api.radarrelay.com/0x');
+                const WETH = '0x2956356cd2a2bf3202f771f50d3d14a367b48070';
+                const SPANK = '0x42d6622dece394b54999fbd73d108123806f6a18';
+                const orders = await client.getOrdersAsync();
+                console.log(orders.length);
+                zeroEx.orderStateWatcher.subscribe((err: Error | null, orderState?: OrderState) => {
+                    console.log(err, orderState);
+                });
+            })().catch(done);
+        })
+        .timeout(100000000000);
     describe('#setProvider', () => {
         it('overrides provider in nested web3s and invalidates contractInstances', async () => {
             // Instantiate the contract instances with the current provider

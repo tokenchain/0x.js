@@ -4,8 +4,8 @@ export const relayerApiOrderbookChannelUpdateSchema = {
     properties: {
         type: { enum: ['update'] },
         channel: { enum: ['orderbook'] },
-        requestId: { type: 'number' },
+        channelId: { type: 'number' },
         payload: { $ref: '/SignedOrder' },
     },
-    required: ['type', 'channel', 'requestId', 'payload'],
+    required: ['type', 'channel', 'channelId', 'payload'],
 };

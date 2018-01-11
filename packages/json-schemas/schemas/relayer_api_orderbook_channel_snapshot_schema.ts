@@ -4,10 +4,10 @@ export const relayerApiOrderbookChannelSnapshotSchema = {
     properties: {
         type: { enum: ['snapshot'] },
         channel: { enum: ['orderbook'] },
-        requestId: { type: 'number' },
+        channelId: { type: 'number' },
         payload: { $ref: '/RelayerApiOrderbookChannelSnapshotPayload' },
     },
-    required: ['type', 'channel', 'requestId', 'payload'],
+    required: ['type', 'channel', 'channelId', 'payload'],
 };
 
 export const relayerApiOrderbookChannelSnapshotPayload = {
