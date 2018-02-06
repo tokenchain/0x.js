@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity ^0.4.14;
+pragma solidity ^0.4.19;
 
 import { ITokenTransferProxy_v1 as ITokenTransferProxy } from "../../interfaces/ITokenTransferProxy_v1.sol";
 import { IToken_v1 as IToken } from "../../interfaces/IToken_v1.sol";

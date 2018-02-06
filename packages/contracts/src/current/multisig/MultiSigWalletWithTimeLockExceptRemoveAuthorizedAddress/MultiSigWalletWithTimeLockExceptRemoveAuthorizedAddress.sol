@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity ^0.4.10;
+pragma solidity ^0.4.19;
 
 import { MultiSigWalletWithTimeLock } from "../MultiSigWalletWithTimeLock/MultiSigWalletWithTimeLock.sol";
 

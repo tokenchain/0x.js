@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.19;
 
 import { IToken_v1 as IToken } from "../../interfaces/IToken_v1.sol";
 import { Ownable_v1 as Ownable } from "../../../previous/Ownable/Ownable_v1.sol";
