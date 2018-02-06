@@ -221,14 +221,22 @@ contract TokenRegistry is Ownable {
     /// @dev Provides a registered token's address when given the token symbol.
     /// @param _symbol Symbol of registered token.
     /// @return Token's address.
-    function getTokenAddressBySymbol(string _symbol) constant returns (address) {
+    function getTokenAddressBySymbol(string _symbol)
+        public
+        constant
+        returns (address)
+    {
         return tokenBySymbol[_symbol];
     }
 
     /// @dev Provides a registered token's address when given the token name.
     /// @param _name Name of registered token.
     /// @return Token's address.
-    function getTokenAddressByName(string _name) constant returns (address) {
+    function getTokenAddressByName(string _name)
+        public
+        constant
+        returns (address)
+    {
         return tokenByName[_name];
     }
 
