@@ -19,7 +19,7 @@
 pragma solidity ^0.4.19;
 
 import { IToken_v1 as IToken } from "../../interfaces/IToken_v1.sol";
-import { Ownable_v1 as Ownable } from "../../../previous/Ownable/Ownable_v1.sol";
+import "../../utils/Ownable/Ownable.sol";
 
 /// @title TokenTransferProxy - Transfers tokens on behalf of contracts that have been approved via decentralized governance.
 /// @author Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com>

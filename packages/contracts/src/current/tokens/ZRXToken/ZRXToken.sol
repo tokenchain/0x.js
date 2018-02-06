@@ -18,7 +18,7 @@
 
 pragma solidity ^0.4.19;
 
-import { UnlimitedAllowanceToken_v1 as UnlimitedAllowanceToken } from "../../../previous/UnlimitedAllowanceToken/UnlimitedAllowanceToken_v1.sol";
+import "../UnlimitedAllowanceToken/UnlimitedAllowanceToken.sol";
 
 contract ZRXToken is UnlimitedAllowanceToken {
 
