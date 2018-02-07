@@ -24,21 +24,54 @@ import "./mixins/MSignatureValidator.sol";
 contract MixinSignatureValidatorEcrecover is
     MSignatureValidator
 {
+    enum SignatureType {
+        Invalid,
+        Ecrecover
+    }
+  
     function isValidSignature(
-        address signer,
         bytes32 hash,
-        uint8 v,
-        bytes32 r,
-        bytes32 s)
-        public
-        constant
+        address signer,
+        bytes signature)
+        public view
         returns (bool)
     {
-        return signer == ecrecover(
+        require(signature.length >= 1);
+        
+        // Select signature type
+        SignatureType stype = SignatureType(uint8(signature[0]));
+        if (stype != SignatureType.Ecrecover) {
+            return false;
+        }
+        
+        // Verify using ecrecover
+        uint8 v = uint8(signature[1]);
+        bytes32 r = get32(signature, 2);
+        bytes32 s = get32(signature, 35);
+        address recovered = ecrecover(
             keccak256("\x19Ethereum Signed Message:\n32", hash),
             v,
             r,
             s
         );
+        bool valid = signer == recovered;
+        return valid;
     }
+    
+    function get32(bytes b, uint256 index)
+        private
+        returns (bytes32 result)
+    {
+        // require(b.length >= index + 32);
+        
+        // Arrays are prefixed by a 256 bit length parameter
+        index += 32;
+        
+        // Read the bytes32 from array memory
+        assembly {
+            result := mload(add(b, index))
+        }
+    }
+
 }
+

@@ -19,7 +19,8 @@
 pragma solidity ^0.4.19;
 
 import "./mixins/MSettlement.sol";
-import "../TokenTransferProxy/TokenTransferProxy.sol";
+import { IToken_v1 as IToken } from "../../interfaces/IToken_v1.sol";
+import { ITokenTransferProxy_v1 as ITokenTransferProxy } from "../../interfaces/ITokenTransferProxy_v1.sol";
 import "./LibPartialAmount.sol";
 
 /// @dev Provides MixinSettlement
@@ -55,7 +56,7 @@ contract MixinSettlementProxy is
         internal
         returns (bool)
     {
-        return TokenTransferProxy(TOKEN_TRANSFER_PROXY_CONTRACT).transferFrom(token, from, to, value);
+        return ITokenTransferProxy(TOKEN_TRANSFER_PROXY_CONTRACT).transferFrom(token, from, to, value);
     }
 
     /// @dev Checks if any order transfers will fail.
@@ -108,7 +109,7 @@ contract MixinSettlementProxy is
         constant  // The called token contract may attempt to change state, but will not be able to due to an added gas limit.
         returns (uint)
     {
-        return Token(token).balanceOf.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner); // Limit gas to prevent reentrancy
+        return IToken(token).balanceOf.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner); // Limit gas to prevent reentrancy
     }
 
     /// @dev Get allowance of token given to TokenTransferProxy by an address.
@@ -120,6 +121,6 @@ contract MixinSettlementProxy is
         constant  // The called token contract may attempt to change state, but will not be able to due to an added gas limit.
         returns (uint)
     {
-        return Token(token).allowance.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner, TOKEN_TRANSFER_PROXY_CONTRACT); // Limit gas to prevent reentrancy
+        return IToken(token).allowance.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner, TOKEN_TRANSFER_PROXY_CONTRACT); // Limit gas to prevent reentrancy
     }
 }

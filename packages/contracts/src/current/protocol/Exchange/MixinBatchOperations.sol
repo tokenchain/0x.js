@@ -17,9 +17,10 @@
 */
 
 pragma solidity ^0.4.19;
+pragma experimental ABIEncoderV2;
 
 import './mixins/MExchangeCore.sol';
-import { SafeMath_v1 as SafeMath } from "../../../previous/SafeMath/SafeMath_v1.sol";
+import "../../utils/SafeMath/SafeMath.sol";
 
 /// @dev Consumes MExchangeCore
 contract MixinBatchOperations is
@@ -27,20 +28,11 @@ contract MixinBatchOperations is
     SafeMath
 {
   
-    /// @dev Fills an order with specified parameters and ECDSA signature, throws if specified amount not filled entirely.
-    /// @param orderAddresses Array of order's maker, taker, makerToken, takerToken, and feeRecipient.
-    /// @param orderValues Array of order's makerTokenAmount, takerTokenAmount, makerFee, takerFee, expirationTimestampInSec, and salt.
-    /// @param fillTakerTokenAmount Desired amount of takerToken to fill.
-    /// @param v ECDSA signature parameter v.
-    /// @param r ECDSA signature parameters r.
-    /// @param s ECDSA signature parameters s.
     function fillOrKillOrder(
         address[5] orderAddresses,
         uint[6] orderValues,
         uint fillTakerTokenAmount,
-        uint8 v,
-        bytes32 r,
-        bytes32 s)
+        bytes signature)
         public
     {
         require(fillOrder(
@@ -48,21 +40,17 @@ contract MixinBatchOperations is
             orderValues,
             fillTakerTokenAmount,
             false,
-            v,
-            r,
-            s
+            signature
         ) == fillTakerTokenAmount);
     }
-
+    
     function batchFillOrders(
         address[5][] orderAddresses,
         uint[6][] orderValues,
         uint[] fillTakerTokenAmounts,
         bool shouldThrowOnInsufficientBalanceOrAllowance,
-        uint8[] v,
-        bytes32[] r,
-        bytes32[] s)
-        external
+        bytes[] signatures)
+        public /// Compiler crash when set to external
     {
         for (uint i = 0; i < orderAddresses.length; i++) {
             fillOrder(
@@ -70,9 +58,7 @@ contract MixinBatchOperations is
                 orderValues[i],
                 fillTakerTokenAmounts[i],
                 shouldThrowOnInsufficientBalanceOrAllowance,
-                v[i],
-                r[i],
-                s[i]
+                signatures[i]
             );
         }
     }
@@ -81,31 +67,26 @@ contract MixinBatchOperations is
         address[5][] orderAddresses,
         uint[6][] orderValues,
         uint[] fillTakerTokenAmounts,
-        uint8[] v,
-        bytes32[] r,
-        bytes32[] s)
-        external
+        bytes[] signatures)
+        public /// Compiler crash when set to external
     {
         for (uint i = 0; i < orderAddresses.length; i++) {
             fillOrKillOrder(
                 orderAddresses[i],
                 orderValues[i],
                 fillTakerTokenAmounts[i],
-                v[i],
-                r[i],
-                s[i]
+                signatures[i]
             );
         }
     }
+
 
     function fillOrdersUpTo(
         address[5][] orderAddresses,
         uint[6][] orderValues,
         uint fillTakerTokenAmount,
         bool shouldThrowOnInsufficientBalanceOrAllowance,
-        uint8[] v,
-        bytes32[] r,
-        bytes32[] s)
+        bytes[] signatures)
         public /// Stack to deep when set to external
         returns (uint)
     {
@@ -117,9 +98,7 @@ contract MixinBatchOperations is
                 orderValues[i],
                 safeSub(fillTakerTokenAmount, filledTakerTokenAmount),
                 shouldThrowOnInsufficientBalanceOrAllowance,
-                v[i],
-                r[i],
-                s[i]
+                signatures[i]
             ));
             if (filledTakerTokenAmount == fillTakerTokenAmount) break;
         }
@@ -140,4 +119,5 @@ contract MixinBatchOperations is
             );
         }
     }
+    
 }

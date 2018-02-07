@@ -17,8 +17,9 @@
 */
 
 pragma solidity ^0.4.19;
+pragma experimental ABIEncoderV2;
 
-import "../../interfaces/IExchange.sol";
+import "../../interfaces/IExchange_v2.sol";
 import "./MixinExchangeCore.sol";
 import "./MixinSignatureValidatorEcrecover.sol";
 import "./MixinSettlementProxy.sol";

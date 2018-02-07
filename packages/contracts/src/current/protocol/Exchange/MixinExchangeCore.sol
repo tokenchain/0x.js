@@ -24,7 +24,7 @@ import "./mixins/MSignatureValidator.sol";
 import "./LibOrder.sol";
 import "./LibErrors.sol";
 import "./LibPartialAmount.sol";
-import { SafeMath_v1 as SafeMath } from "../../../previous/SafeMath/SafeMath_v1.sol";
+import "../../utils/SafeMath/SafeMath.sol";
 
 /// @dev Provides MExchangeCore
 /// @dev Consumes MSettlement
@@ -84,18 +84,14 @@ contract MixinExchangeCore is
     /// @param orderValues Array of order's makerTokenAmount, takerTokenAmount, makerFee, takerFee, expirationTimestampInSec, and salt.
     /// @param fillTakerTokenAmount Desired amount of takerToken to fill.
     /// @param shouldThrowOnInsufficientBalanceOrAllowance Test if transfer will fail before attempting.
-    /// @param v ECDSA signature parameter v.
-    /// @param r ECDSA signature parameters r.
-    /// @param s ECDSA signature parameters s.
+    /// @param signature Proof of signing order by maker.
     /// @return Total amount of takerToken filled in trade.
     function fillOrder(
           address[5] orderAddresses,
           uint[6] orderValues,
           uint fillTakerTokenAmount,
           bool shouldThrowOnInsufficientBalanceOrAllowance,
-          uint8 v,
-          bytes32 r,
-          bytes32 s)
+          bytes signature)
           public
           returns (uint filledTakerTokenAmount)
     {
@@ -116,11 +112,9 @@ contract MixinExchangeCore is
         require(order.taker == address(0) || order.taker == msg.sender);
         require(order.makerTokenAmount > 0 && order.takerTokenAmount > 0 && fillTakerTokenAmount > 0);
         require(isValidSignature(
-            order.maker,
             order.orderHash,
-            v,
-            r,
-            s
+            order.maker,
+            signature
         ));
 
         if (block.timestamp >= order.expirationTimestampInSec) {
