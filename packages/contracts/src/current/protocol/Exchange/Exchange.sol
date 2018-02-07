@@ -20,6 +20,8 @@ pragma solidity ^0.4.19;
 pragma experimental ABIEncoderV2;
 
 import "../../interfaces/IExchange_v2.sol";
+import { IToken_v1 as IToken } from "../../interfaces/IToken_v1.sol";
+import { ITokenTransferProxy_v1 as ITokenTransferProxy } from "../../interfaces/ITokenTransferProxy_v1.sol";
 import "./MixinExchangeCore.sol";
 import "./MixinSignatureValidatorEcrecover.sol";
 import "./MixinSettlementProxy.sol";
@@ -34,7 +36,10 @@ contract Exchange is
 {
     string constant public VERSION = "2.0.0-alpha";
 
-    function Exchange(address _zrxToken, address _tokenTransferProxy)
+    function Exchange(
+        IToken _zrxToken,
+        ITokenTransferProxy _tokenTransferProxy
+    )
         public
         //IExchange()
         MixinExchangeCore()
