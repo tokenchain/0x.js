@@ -37,7 +37,7 @@ contract Exchange is
     function Exchange(address _zrxToken, address _tokenTransferProxy)
         public
         //IExchange()
-        MixinExchangeCore(_zrxToken)
+        MixinExchangeCore()
         MixinSignatureValidatorEcrecover()
         MixinSettlementProxy(_tokenTransferProxy, _zrxToken)
         MixinBatchOperations()
