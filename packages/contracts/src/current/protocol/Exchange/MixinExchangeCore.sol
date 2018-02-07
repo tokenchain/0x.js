@@ -108,15 +108,23 @@ contract MixinExchangeCore is
             expirationTimestampInSec: orderValues[4],
             orderHash: getOrderHash(orderAddresses, orderValues)
         });
-
+        
+        // Validate order and maker only if first time seen
+        if (filled[order.orderHash] == 0 && cancelled[order.orderHash] == 0) {
+          require(order.makerTokenAmount > 0);
+          require(order.takerTokenAmount > 0);
+          require(isValidSignature(
+              order.orderHash,
+              order.maker,
+              signature
+          ));
+        }
+        
+        // Validate taker
         require(order.taker == address(0) || order.taker == msg.sender);
-        require(order.makerTokenAmount > 0 && order.takerTokenAmount > 0 && fillTakerTokenAmount > 0);
-        require(isValidSignature(
-            order.orderHash,
-            order.maker,
-            signature
-        ));
+        require(fillTakerTokenAmount > 0);
 
+        // Validate order expiration
         if (block.timestamp >= order.expirationTimestampInSec) {
             LogError(uint8(Errors.ORDER_EXPIRED), order.orderHash);
             return 0;
